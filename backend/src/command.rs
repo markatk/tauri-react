@@ -1,5 +1,5 @@
 /*
- * File: build.rs
+ * File: command.rs
  * Author: MarkAtk
  * Date: 09.12.20
  *
@@ -26,19 +26,44 @@
  * SOFTWARE.
  */
 
-#[cfg(windows)]
-extern crate winres;
+use std::sync::Mutex;
+use std::marker::Sync;
+use serde::{Deserialize, Serialize};
 
-#[cfg(windows)]
-fn main() {
-    if std::path::Path::new("icons/icon.ico").exists() {
-        let mut res = winres::WindowsResource::new();
-        res.set_icon("icons/icon.ico");
-        res.compile().expect("Unable to find visual studio tools");
-    } else {
-        panic!("No Icon.ico found. Please add one or check the path");
+#[derive(Deserialize)]
+#[serde(tag = "cmd", rename_all = "camelCase")]
+pub enum Cmd {
+    InitializeStore { callback: String, error: String },
+    Action { action: String, data: serde_json::Value, callback: String, error: String }
+}
+
+pub trait ActionCallback<T: ApplicationState>: Fn(T, serde_json::Value) -> tauri::Result<T> + Send + Sync + 'static {}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct CommandError {
+    message: String
+}
+
+impl CommandError {
+    pub fn new(message: String) -> Self {
+        Self {
+            message
+        }
     }
 }
 
-#[cfg(not(windows))]
-fn main() {}
+impl std::fmt::Display for CommandError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl std::error::Error for CommandError {}
+
+pub trait ApplicationState: Serialize + Clone + Default + Send + std::fmt::Display {}
+
+#[derive(Default)]
+pub struct StoreState<T: ApplicationState> {
+    pub data: Mutex<T>
+}
+
