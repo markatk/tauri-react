@@ -27,7 +27,7 @@
  */
 
 import React from 'react';
-import { connect } from 'tauri-react';
+import { connect, bindActionCreators } from 'tauri-react';
 
 import { deleteTodo } from '../actions/todo';
 import { List, ListItem } from '../components/list';
@@ -51,10 +51,8 @@ const mapStateToProps = (state) => {
     };
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        deleteTodo: index => dispatch(deleteTodo(index))
-    };
-};
+const mapDispatchToProps = (dispatch) => bindActionCreators({
+    deleteTodo
+}, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(TodoList);

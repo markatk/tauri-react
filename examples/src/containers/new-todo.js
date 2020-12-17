@@ -27,7 +27,7 @@
  */
 
 import React, { useState } from 'react';
-import { connect } from 'tauri-react';
+import { connect, bindActionCreators } from 'tauri-react';
 
 import { addTodo } from '../actions/todo';
 import { TextBox } from '../components/text-box';
@@ -48,10 +48,8 @@ const NewTodo = ({ addTodo }) => {
     </div>;
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        addTodo: todo => dispatch(addTodo(todo))
-    };
-};
+const mapDispatchToProps = dispatch => bindActionCreators({
+    addTodo
+}, dispatch);
 
 export default connect(null, mapDispatchToProps)(NewTodo);

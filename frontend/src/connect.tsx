@@ -32,6 +32,21 @@ import { promisified } from 'tauri/api/tauri';
 import { Action } from './action';
 import Context, { StoreContext } from './context';
 
+function bindActionCreator(action: (...args: any[]) => Action, dispatch: (action: Action) => void) {
+    return function (this: any, ...args: any[]) {
+        return dispatch(action.apply(this, args));
+    }
+}
+
+export function bindActionCreators(actions: {[key: string]: (...args: any[]) => Action}, dispatch: (action: Action) => void): Object {
+    const data = {};
+    for (const key in actions) {
+        data[key] = bindActionCreator(actions[key], dispatch);
+    }
+
+    return data;
+}
+
 export function connect(mapStateToProps?: (state: Object) => Object, mapDispatchToProps?: (dispatch: (action: Action) => void) => Object) {
     return (Component: typeof React.Component) => {
         return () => {

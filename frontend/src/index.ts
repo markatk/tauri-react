@@ -27,7 +27,7 @@
  */
 
 import action, { Action } from './action';
-import { connect } from './connect';
+import { connect, bindActionCreators } from './connect';
 import Store from './store';
 
 export type {
@@ -37,5 +37,6 @@ export type {
 export {
     action,
     connect,
+    bindActionCreators,
     Store
 }
