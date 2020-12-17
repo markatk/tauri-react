@@ -1,7 +1,7 @@
 /*
- * File: main.rs
+ * File: commands.rs
  * Author: MarkAtk
- * Date: 09.12.20
+ * Date: 17.12.20
  *
  * MIT License
  *
@@ -26,19 +26,20 @@
  * SOFTWARE.
  */
 
-#![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
-)]
+use std::collections::HashMap;
+use once_cell::sync::Lazy;
+use crate::state::AppState;
 
-use tauri_react::command_handler;
+fn connect(mut state: AppState, _data: serde_json::Value) -> tauri::Result<AppState> {
+    state.connected = true;
 
-mod state;
-mod commands;
-
-fn main() {
-    tauri::AppBuilder::new()
-        .invoke_handler(|webview, arg| command_handler(webview, arg, &state::STATE, &commands::COMMANDS))
-        .build()
-        .run();
+    Ok(state)
 }
+
+pub static COMMANDS: Lazy<HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>>> = Lazy::new(|| {
+    let mut c: HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>> = HashMap::new();
+
+    c.insert("connect".to_string(), Box::new(connect));
+
+    c
+});

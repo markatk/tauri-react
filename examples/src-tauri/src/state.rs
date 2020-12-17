@@ -1,7 +1,7 @@
 /*
- * File: main.rs
+ * File: state.rs
  * Author: MarkAtk
- * Date: 09.12.20
+ * Date: 17.12.20
  *
  * MIT License
  *
@@ -26,19 +26,24 @@
  * SOFTWARE.
  */
 
-#![cfg_attr(
-  all(not(debug_assertions), target_os = "windows"),
-  windows_subsystem = "windows"
-)]
+use std::sync::Arc;
+use once_cell::sync::Lazy;
+use tauri_react::{ApplicationState, StoreState};
+use serde::Serialize;
 
-use tauri_react::command_handler;
-
-mod state;
-mod commands;
-
-fn main() {
-    tauri::AppBuilder::new()
-        .invoke_handler(|webview, arg| command_handler(webview, arg, &state::STATE, &commands::COMMANDS))
-        .build()
-        .run();
+#[derive(Serialize, Default, Clone)]
+pub struct AppState {
+    pub connected: bool
 }
+
+impl ApplicationState for AppState {}
+
+impl std::fmt::Display for AppState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "(connected={})", self.connected)
+    }
+}
+
+pub static STATE: Lazy<Arc<StoreState<AppState>>> = Lazy::new(|| {
+    Arc::new(StoreState::default())
+});
