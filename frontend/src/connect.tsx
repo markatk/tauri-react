@@ -32,7 +32,7 @@ import { promisified } from 'tauri/api/tauri';
 import { Action } from './action';
 import Context, { StoreContext } from './context';
 
-export function connect(mapStateToProps: (state: Object) => Object, mapDispatchToProps: (dispatch: (action: Action) => void) => Object) {
+export function connect(mapStateToProps?: (state: Object) => Object, mapDispatchToProps?: (dispatch: (action: Action) => void) => Object) {
     return (Component: typeof React.Component) => {
         return () => {
             const storeState = useContext<StoreContext>(Context);
@@ -45,8 +45,8 @@ export function connect(mapStateToProps: (state: Object) => Object, mapDispatchT
             };
 
             const props = {
-                ...mapStateToProps(storeState.state || {}),
-                ...mapDispatchToProps(dispatch) ?? {}
+                ...(mapStateToProps != null ? mapStateToProps(storeState.state || {}) : {}),
+                ...(mapDispatchToProps != null ? mapDispatchToProps(dispatch) : {})
             };
 
             return <Component {...props} />;
