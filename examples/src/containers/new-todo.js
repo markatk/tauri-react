@@ -1,5 +1,5 @@
 /*
- * File: state.rs
+ * File: new-todo.js
  * Author: MarkAtk
  * Date: 17.12.20
  *
@@ -26,24 +26,32 @@
  * SOFTWARE.
  */
 
-use std::sync::Arc;
-use once_cell::sync::Lazy;
-use tauri_react::{ApplicationState, StoreState};
-use serde::Serialize;
+import React, { useState } from 'react';
+import { connect } from 'tauri-react';
 
-#[derive(Serialize, Default, Clone)]
-pub struct AppState {
-    pub todos: Vec<String>
-}
+import { addTodo } from '../actions/todo';
+import { TextBox } from '../components/text-box';
+import { Button } from '../components/button';
 
-impl ApplicationState for AppState {}
+const NewTodo = ({ addTodo }) => {
+    const [todo, setTodo] = useState('');
 
-impl std::fmt::Display for AppState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(todos={})", self.todos.join(";"))
-    }
-}
+    const addAndClearTodo = () => {
+        addTodo(todo);
+        setTodo('');
+    };
 
-pub static STATE: Lazy<Arc<StoreState<AppState>>> = Lazy::new(|| {
-    Arc::new(StoreState::default())
-});
+    return <div>
+        <TextBox text={todo} onChange={setTodo} />
+
+        <Button onClick={addAndClearTodo} disabled={todo === ''}>Add</Button>
+    </div>;
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        addTodo: todo => dispatch(addTodo(todo))
+    };
+};
+
+export default connect(null, mapDispatchToProps)(NewTodo);

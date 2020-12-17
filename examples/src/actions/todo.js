@@ -1,5 +1,5 @@
 /*
- * File: state.rs
+ * File: todo.js
  * Author: MarkAtk
  * Date: 17.12.20
  *
@@ -26,24 +26,12 @@
  * SOFTWARE.
  */
 
-use std::sync::Arc;
-use once_cell::sync::Lazy;
-use tauri_react::{ApplicationState, StoreState};
-use serde::Serialize;
+import { action } from 'tauri-react';
 
-#[derive(Serialize, Default, Clone)]
-pub struct AppState {
-    pub todos: Vec<String>
+export function addTodo(todo) {
+    return action('add-todo', { todo });
 }
 
-impl ApplicationState for AppState {}
-
-impl std::fmt::Display for AppState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(todos={})", self.todos.join(";"))
-    }
+export function deleteTodo(index) {
+    return action('delete-todo', { index });
 }
-
-pub static STATE: Lazy<Arc<StoreState<AppState>>> = Lazy::new(|| {
-    Arc::new(StoreState::default())
-});

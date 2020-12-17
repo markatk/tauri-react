@@ -1,7 +1,7 @@
 /*
- * File: App.css
+ * File: todo-list.js
  * Author: MarkAtk
- * Date: 09.12.20
+ * Date: 17.12.20
  *
  * MIT License
  *
@@ -26,41 +26,35 @@
  * SOFTWARE.
  */
 
-.App {
-  text-align: center;
-}
+import React from 'react';
+import { connect } from 'tauri-react';
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+import { deleteTodo } from '../actions/todo';
+import { List, ListItem } from '../components/list';
+import { Button } from '../components/button';
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+const TodoList = ({ todos, deleteTodo }) => (
+    <List>
+        {todos && todos.map((todo, index) => (
+            <ListItem key={index}>
+                {todo}
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
+                <Button onClick={() => deleteTodo(index)}>x</Button>
+            </ListItem>
+        ))}
+    </List>
+);
 
-.App-link {
-  color: #61dafb;
-}
+const mapStateToProps = (state) => {
+    return {
+        todos: state.todos
+    };
+};
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+const mapDispatchToProps = (dispatch) => {
+    return {
+        deleteTodo: index => dispatch(deleteTodo(index))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);

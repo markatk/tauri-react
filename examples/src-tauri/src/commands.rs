@@ -27,11 +27,32 @@
  */
 
 use std::collections::HashMap;
+use serde::Deserialize;
 use once_cell::sync::Lazy;
 use crate::state::AppState;
 
-fn connect(mut state: AppState, _data: serde_json::Value) -> tauri::Result<AppState> {
-    state.connected = true;
+#[derive(Deserialize)]
+struct AddTodoData {
+    pub todo: String
+}
+
+fn add_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
+    let data: AddTodoData = serde_json::from_value(value)?;
+
+    state.todos.push(data.todo);
+
+    Ok(state)
+}
+
+#[derive(Deserialize)]
+struct DeleteTodoData {
+    pub index: usize
+}
+
+fn delete_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
+    let data: DeleteTodoData = serde_json::from_value(value)?;
+
+    state.todos.remove(data.index);
 
     Ok(state)
 }
@@ -39,7 +60,8 @@ fn connect(mut state: AppState, _data: serde_json::Value) -> tauri::Result<AppSt
 pub static COMMANDS: Lazy<HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>>> = Lazy::new(|| {
     let mut c: HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>> = HashMap::new();
 
-    c.insert("connect".to_string(), Box::new(connect));
+    c.insert("add-todo".to_string(), Box::new(add_todo));
+    c.insert("delete-todo".to_string(), Box::new(delete_todo));
 
     c
 });

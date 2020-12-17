@@ -27,13 +27,25 @@
  */
 
 import React from 'react';
+import styled from 'styled-components';
 
-import './App.css';
+import NewTodo from './containers/new-todo';
+import TodoList from './containers/todo-list';
+
+const Container = styled.div`
+    background: #f8f4e3;
+
+    height: 100vh;
+
+    margin: 0;
+    padding: 0;
+`;
 
 const App = () => (
-    <div className='App'>
-        <h1>Todo</h1>
-    </div>
+    <Container>
+        <NewTodo />
+        <TodoList />
+    </Container>
 );
 
 export default App;

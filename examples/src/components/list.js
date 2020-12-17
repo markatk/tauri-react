@@ -1,5 +1,5 @@
 /*
- * File: state.rs
+ * File: list.js
  * Author: MarkAtk
  * Date: 17.12.20
  *
@@ -26,24 +26,11 @@
  * SOFTWARE.
  */
 
-use std::sync::Arc;
-use once_cell::sync::Lazy;
-use tauri_react::{ApplicationState, StoreState};
-use serde::Serialize;
+import styled from 'styled-components';
 
-#[derive(Serialize, Default, Clone)]
-pub struct AppState {
-    pub todos: Vec<String>
-}
+export const List = styled.ul`
+    margin: 0;
+`;
 
-impl ApplicationState for AppState {}
-
-impl std::fmt::Display for AppState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(todos={})", self.todos.join(";"))
-    }
-}
-
-pub static STATE: Lazy<Arc<StoreState<AppState>>> = Lazy::new(|| {
-    Arc::new(StoreState::default())
-});
+export const ListItem = styled.li`
+`;
