@@ -31,6 +31,8 @@
     windows_subsystem = "windows"
 )]
 
+use std::thread;
+use std::time::Duration;
 use tauri_react::command_handler;
 
 mod state;
@@ -38,6 +40,27 @@ mod commands;
 
 fn main() {
     tauri::AppBuilder::new()
+        .setup(|webview, _source| {
+            let mut webview = webview.as_mut();
+
+            thread::spawn(move || {
+                loop {
+                    let time = std::time::SystemTime::now()
+                        .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                        .unwrap()
+                        .as_secs();
+
+                    {
+                        let mut state = state::STATE.get_data().unwrap();
+                        state.time = time;
+
+                        tauri_react::update_state(&mut webview, (*state).clone()).unwrap();
+                    }
+
+                    thread::sleep(Duration::from_secs(1));
+                }
+            });
+        })
         .invoke_handler(|webview, arg| command_handler(webview, arg, &state::STATE, &commands::COMMANDS))
         .build()
         .run();

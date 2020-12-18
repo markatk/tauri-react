@@ -54,7 +54,9 @@ pub fn command_handler<T: ApplicationState + 'static>(
         Ok(command) => {
             match command {
                 Cmd::InitializeStore { callback, error } => tauri::execute_promise(webview, move || {
+                    println!("locking init state");
                     let mut state_data = state.get_data()?;
+                    println!("init state lock");
 
                     match commands.get(INIT_FUNC) {
                         Some(ref func) => {
@@ -99,4 +101,8 @@ pub fn command_handler<T: ApplicationState + 'static>(
             Ok(())
         }
     }
+}
+
+pub fn update_state<T: ApplicationState>(webview: &mut tauri::WebviewMut, state: T) -> tauri::Result<()> {
+    tauri::event::emit(webview, String::from("state-update"), Some(state))
 }

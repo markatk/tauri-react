@@ -32,17 +32,21 @@ import styled from 'styled-components';
 import { ViewBody } from './components/view';
 import NewTodo from './containers/new-todo';
 import TodoList from './containers/todo-list';
+import Clock from './containers/clock';
 
 const Container = styled(ViewBody)`
     background: #f8f4e3;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 `;
 
-const App = () => (
-    <Container>
+const App = () => {
+    return <Container>
         <NewTodo />
+
         <TodoList />
-    </Container>
-);
+
+        <Clock />
+    </Container>;
+};
 
 export default App;

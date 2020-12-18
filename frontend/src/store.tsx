@@ -28,6 +28,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { promisified } from 'tauri/api/tauri';
+import { listen } from 'tauri/api/event';
 
 import Context from './context';
 
@@ -41,6 +42,11 @@ const Store: React.FunctionComponent = ({ children }) => {
         promisified({ cmd: 'initializeStore' })
             .then(response => setState(response as Object))
             .catch(err => console.log(err));
+
+        // listen for state updates fired from the backend without a frontend command
+        listen('state-update', event => {
+            setState(event.payload as Object);
+        });
     }, []);
 
     return <Context.Provider value={{ state, setState }}>

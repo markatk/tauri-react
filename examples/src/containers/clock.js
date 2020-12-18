@@ -1,7 +1,7 @@
 /*
- * File: state.rs
+ * File: clock.js
  * Author: MarkAtk
- * Date: 17.12.20
+ * Date: 18.12.20
  *
  * MIT License
  *
@@ -26,38 +26,24 @@
  * SOFTWARE.
  */
 
-use std::sync::{Arc, Mutex, MutexGuard};
-use once_cell::sync::Lazy;
-use tauri_react::{ApplicationState, StoreState};
-use serde::Serialize;
+import React from 'react';
+import { connect } from 'tauri-react';
 
-#[derive(Serialize, Default, Clone)]
-pub struct AppState {
-    pub todos: Vec<String>,
-    pub time: u64,
-    pub path: String
-}
+import { ViewRow } from '../components/view';
 
-impl ApplicationState for AppState {}
+const Clock = ({ time }) => {
+    const date = new Date(0);
+    date.setUTCSeconds(time);
 
-impl std::fmt::Display for AppState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(todos={})", self.todos.join(";"))
-    }
-}
+    return <ViewRow>
+        <p>{date.toLocaleString()}</p>
+    </ViewRow>;
+};
 
-#[derive(Default)]
-pub struct State {
-    pub data: Mutex<AppState>
-}
+const mapStateToProps = state => {
+    return {
+        time: state.time
+    };
+};
 
-impl StoreState<AppState> for State {
-    fn get_data(&self) -> tauri::Result<MutexGuard<AppState>> {
-        // TODO: Proper error handling
-        Ok(self.data.lock().unwrap())
-    }
-}
-
-pub static STATE: Lazy<Arc<dyn StoreState<AppState>>> = Lazy::new(|| {
-    Arc::new(State::default())
-});
+export default connect(mapStateToProps)(Clock);
