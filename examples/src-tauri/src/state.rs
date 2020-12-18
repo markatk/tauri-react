@@ -26,7 +26,7 @@
  * SOFTWARE.
  */
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 use once_cell::sync::Lazy;
 use tauri_react::{ApplicationState, StoreState};
 use serde::Serialize;
@@ -44,6 +44,18 @@ impl std::fmt::Display for AppState {
     }
 }
 
-pub static STATE: Lazy<Arc<StoreState<AppState>>> = Lazy::new(|| {
-    Arc::new(StoreState::default())
+#[derive(Default)]
+pub struct State {
+    pub data: Mutex<AppState>
+}
+
+impl StoreState<AppState> for State {
+    fn get_data(&self) -> tauri::Result<MutexGuard<AppState>> {
+        // TODO: Proper error handling
+        Ok(self.data.lock().unwrap())
+    }
+}
+
+pub static STATE: Lazy<Arc<dyn StoreState<AppState>>> = Lazy::new(|| {
+    Arc::new(State::default())
 });

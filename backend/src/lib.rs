@@ -32,16 +32,17 @@ use once_cell::sync::Lazy;
 use tauri::Webview;
 
 mod command;
-mod action;
 
 use command::{Cmd, CommandError};
 
 pub use command::{StoreState, ApplicationState, ActionCallback};
 
+pub const INIT_FUNC: &str = "initialize";
+
 pub fn command_handler<T: ApplicationState + 'static>(
     webview: &mut Webview,
     arg: &str,
-    state: &'static Lazy<Arc<StoreState<T>>>,
+    state: &'static Lazy<Arc<dyn StoreState<T>>>,
     commands: &'static Lazy<HashMap<String, Box<dyn Fn(T, serde_json::Value) -> tauri::Result<T> + Send + Sync + 'static>>>,
 ) -> Result<(), String> {
     match serde_json::from_str(arg) {
@@ -53,17 +54,29 @@ pub fn command_handler<T: ApplicationState + 'static>(
         Ok(command) => {
             match command {
                 Cmd::InitializeStore { callback, error } => tauri::execute_promise(webview, move || {
-                    let state_data = state.data.lock().unwrap();
-                    // *state_data = initialize_state();
-                    println!("Init state: {}", *state_data);
+                    let mut state_data = state.get_data()?;
 
-                    Ok((*state_data).clone())
+                    match commands.get(INIT_FUNC) {
+                        Some(ref func) => {
+                            match func((*state_data).clone(), serde_json::Value::Null) {
+                                Ok(s) => {
+                                    *state_data = s;
+                                    println!("Init state: {}", *state_data);
+
+                                    Ok((*state_data).clone())
+                                },
+                                Err(err) => Err(err)
+                            }
+                        },
+                        _ => Ok((*state_data).clone())
+                    }
                 }, callback, error),
                 Cmd::Action { action, data, callback, error } => tauri::execute_promise(webview, move || {
                     // try to get function for action and execute it, otherwise return command error
                     match commands.get(&action) {
                         Some(ref func) => {
-                            let mut state_data = state.data.lock().unwrap();
+                            let mut state_data = state.get_data()?;
+
                             match func((*state_data).clone(), data) {
                                 Ok(s) => {
                                     *state_data = s;

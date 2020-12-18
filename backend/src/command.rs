@@ -26,8 +26,8 @@
  * SOFTWARE.
  */
 
-use std::sync::Mutex;
-use std::marker::Sync;
+use std::sync::MutexGuard;
+use std::marker::{Sync, Send};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
@@ -62,8 +62,6 @@ impl std::error::Error for CommandError {}
 
 pub trait ApplicationState: Serialize + Clone + Default + Send + std::fmt::Display {}
 
-#[derive(Default)]
-pub struct StoreState<T: ApplicationState> {
-    pub data: Mutex<T>
+pub trait StoreState<T: ApplicationState>: Send + Sync {
+    fn get_data(&self) -> tauri::Result<MutexGuard<T>>;
 }
-

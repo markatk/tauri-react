@@ -30,6 +30,13 @@ use std::collections::HashMap;
 use serde::Deserialize;
 use once_cell::sync::Lazy;
 use crate::state::AppState;
+use tauri_react::INIT_FUNC;
+
+fn initialize(mut state: AppState, _: serde_json::Value) -> tauri::Result<AppState> {
+    state.todos.push("Your first todo".to_string());
+
+    Ok(state)
+}
 
 #[derive(Deserialize)]
 struct AddTodoData {
@@ -60,6 +67,7 @@ fn delete_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<A
 pub static COMMANDS: Lazy<HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>>> = Lazy::new(|| {
     let mut c: HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>> = HashMap::new();
 
+    c.insert(INIT_FUNC.to_string(), Box::new(initialize));
     c.insert("add-todo".to_string(), Box::new(add_todo));
     c.insert("delete-todo".to_string(), Box::new(delete_todo));
 
