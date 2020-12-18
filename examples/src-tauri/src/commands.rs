@@ -27,15 +27,34 @@
  */
 
 use std::collections::HashMap;
-use serde::Deserialize;
+use std::fs::{self, File};
+use std::io::BufReader;
+use std::io::prelude::*;
 use once_cell::sync::Lazy;
-use crate::state::AppState;
+use serde::Deserialize;
 use tauri_react::INIT_FUNC;
+use crate::state::AppState;
 
 fn initialize(mut state: AppState, _: serde_json::Value) -> tauri::Result<AppState> {
-    state.todos.push("Your first todo".to_string());
+    state.path = "todos.txt".to_string();
+    state.todos.clear();
+
+    // read from file
+    let file = File::open(&state.path)?;
+    for line in BufReader::new(file).lines() {
+        if let Ok(todo) = line {
+            state.todos.push(todo);
+        }
+    }
 
     Ok(state)
+}
+
+fn write_todos_to_file(todos: &Vec<String>, path: &str) -> Result<(), std::io::Error> {
+    let data = todos.join("\n");
+    fs::write(path, data.as_str())?;
+
+    Ok(())
 }
 
 #[derive(Deserialize)]
@@ -45,8 +64,9 @@ struct AddTodoData {
 
 fn add_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
     let data: AddTodoData = serde_json::from_value(value)?;
-
     state.todos.push(data.todo);
+
+    write_todos_to_file(&state.todos, &state.path)?;
 
     Ok(state)
 }
@@ -58,8 +78,9 @@ struct DeleteTodoData {
 
 fn delete_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
     let data: DeleteTodoData = serde_json::from_value(value)?;
-
     state.todos.remove(data.index);
+
+    write_todos_to_file(&state.todos, &state.path)?;
 
     Ok(state)
 }

@@ -33,7 +33,8 @@ use serde::Serialize;
 
 #[derive(Serialize, Default, Clone)]
 pub struct AppState {
-    pub todos: Vec<String>
+    pub todos: Vec<String>,
+    pub path: String
 }
 
 impl ApplicationState for AppState {}
