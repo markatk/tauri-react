@@ -1,7 +1,7 @@
 /*
- * File: todo-list.js
+ * File: view.js
  * Author: MarkAtk
- * Date: 17.12.20
+ * Date: 18.12.20
  *
  * MIT License
  *
@@ -26,33 +26,31 @@
  * SOFTWARE.
  */
 
-import React from 'react';
-import { connect, bindActionCreators } from 'tauri-react';
+import styled from 'styled-components';
 
-import { deleteTodo } from '../actions/todo';
-import { List, ListItem } from '../components/list';
-import { BorderlessButton } from '../components/button';
+const ViewAxis = styled.div`
+    display: flex;
+    flex: ${props => props.grow ? '1 1 auto' : 'none'};
+    background: ${props => props.background ?? 'none'};
+`;
 
-const TodoList = ({ todos, deleteTodo }) => (
-    <List>
-        {todos && todos.map((todo, index) => (
-            <ListItem key={index}>
-                {todo}
+export const ViewRow = styled(ViewAxis)`
+    flex-flow: row;
+    height: ${props => props.height ?? 'auto'};
+`;
 
-                <BorderlessButton onClick={() => deleteTodo(index)}>X</BorderlessButton>
-            </ListItem>
-        ))}
-    </List>
-);
+export const ViewColumn = styled(ViewAxis)`
+    flex-flow: column;
+    width: ${props => props.width ?? 'auto'};
+`;
 
-const mapStateToProps = (state) => {
-    return {
-        todos: state.todos
-    };
-};
+export const ViewBody = styled(ViewColumn)`
+    height: 100vh;
+    flex: 1 1 auto;
+`;
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({
-    deleteTodo
-}, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
+export default {
+    Row: ViewRow,
+    Column: ViewColumn,
+    Body: ViewBody
+}

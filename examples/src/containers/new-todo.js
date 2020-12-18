@@ -30,6 +30,7 @@ import React, { useState } from 'react';
 import { connect, bindActionCreators } from 'tauri-react';
 
 import { addTodo } from '../actions/todo';
+import { ViewRow } from '../components/view';
 import { TextBox } from '../components/text-box';
 import { Button } from '../components/button';
 
@@ -38,14 +39,18 @@ const NewTodo = ({ addTodo }) => {
 
     const addAndClearTodo = () => {
         addTodo(todo);
+
+        // reset input
         setTodo('');
     };
 
-    return <div>
-        <TextBox text={todo} onChange={setTodo} />
+    return <form>
+         <ViewRow>
+            <TextBox text={todo} onChange={setTodo} flex='1 1 auto' />
 
-        <Button onClick={addAndClearTodo} disabled={todo === ''}>Add</Button>
-    </div>;
+            <Button onClick={addAndClearTodo} disabled={todo === ''} type='submit'>Add</Button>
+         </ViewRow>
+    </form>;
 };
 
 const mapDispatchToProps = dispatch => bindActionCreators({

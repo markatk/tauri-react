@@ -30,8 +30,17 @@ import React from 'react';
 import styled from 'styled-components';
 
 const Input = styled.input`
+    margin: 10px 5px;
+    padding: 5px;
+    border-radius: 5px;
+
+    flex: ${props => props.flex ?? 'auto'};
+
+    &:focus {
+        outline: none;
+    }
 `;
 
-export const TextBox = ({ text, onChange }) => (
-    <Input value={text} onChange={event => onChange(event.target.value)} />
+export const TextBox = ({ text, onChange, flex }) => (
+    <Input value={text} onChange={event => onChange(event.target.value)} flex={flex} />
 );

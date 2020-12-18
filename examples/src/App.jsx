@@ -29,16 +29,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { ViewBody } from './components/view';
 import NewTodo from './containers/new-todo';
 import TodoList from './containers/todo-list';
 
-const Container = styled.div`
+const Container = styled(ViewBody)`
     background: #f8f4e3;
-
-    height: 100vh;
-
-    margin: 0;
-    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 `;
 
 const App = () => (

@@ -29,4 +29,18 @@
 import styled from 'styled-components';
 
 export const Button = styled.button`
+    width: 80px;
+    margin: 10px 5px;
+`;
+
+export const BorderlessButton = styled.button`
+    border: none;
+    background: none;
+
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:focus {
+        outline: none;
+    }
 `;
