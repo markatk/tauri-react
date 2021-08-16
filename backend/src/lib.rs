@@ -42,67 +42,89 @@ pub const INIT_FUNC: &str = "initialize";
 pub fn command_handler<T: ApplicationState + 'static>(
     webview: &mut Webview,
     arg: &str,
-    state: &'static Lazy<Arc<dyn StoreState<T>>>,
-    commands: &'static Lazy<HashMap<String, Box<dyn Fn(T, serde_json::Value) -> tauri::Result<T> + Send + Sync + 'static>>>,
+    state: &'static Lazy<Arc<StoreState<T>>>,
+    commands: &'static Lazy<HashMap<String, Box<dyn Fn(&mut T, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static>>>,
 ) -> Result<(), String> {
-    match serde_json::from_str(arg) {
-        Err(err) => {
-            println!("{}", err);
+    // parse command from frontend argument
+    let command = serde_json::from_str(arg);
+    if let Err(err) = command {
+        println!("{}", err);
 
-            Err(err.to_string())
-        },
-        Ok(command) => {
-            match command {
-                Cmd::InitializeStore { callback, error } => tauri::execute_promise(webview, move || {
-                    println!("locking init state");
-                    let mut state_data = state.get_data()?;
-                    println!("init state lock");
-
-                    match commands.get(INIT_FUNC) {
-                        Some(ref func) => {
-                            match func((*state_data).clone(), serde_json::Value::Null) {
-                                Ok(s) => {
-                                    *state_data = s;
-                                    println!("Init state: {}", *state_data);
-
-                                    Ok((*state_data).clone())
-                                },
-                                Err(err) => Err(err)
-                            }
-                        },
-                        _ => Ok((*state_data).clone())
-                    }
-                }, callback, error),
-                Cmd::Action { action, data, callback, error } => tauri::execute_promise(webview, move || {
-                    // try to get function for action and execute it, otherwise return command error
-                    match commands.get(&action) {
-                        Some(ref func) => {
-                            let mut state_data = state.get_data()?;
-
-                            match func((*state_data).clone(), data) {
-                                Ok(s) => {
-                                    *state_data = s;
-                                    println!("New state: {}", *state_data);
-
-                                    Ok((*state_data).clone())
-                                },
-                                Err(err) => Err(err)
-                            }
-                        },
-                        _ => {
-                            println!("Unknown action: {}", action);
-
-                            Err(CommandError::new(format!("Unknown action: {}", action)).into())
-                        }
-                    }
-                }, callback, error)
-            }
-
-            Ok(())
-        }
+        return Err(err.to_string());
     }
+
+    // handle parsed command
+    // TODO: Add unhandled command match
+    match command.unwrap() {
+        Cmd::InitializeStore { callback, error } => tauri::execute_promise(
+            webview,
+            move || initialize_store_handler(state, commands),
+            callback,
+            error
+        ),
+        Cmd::Action { action, data, callback, error } => tauri::execute_promise(
+            webview,
+            move || action_handler(state, commands, action, data),
+            callback,
+            error
+        )
+    }
+
+    Ok(())
 }
 
 pub fn update_state<T: ApplicationState>(webview: &mut tauri::WebviewMut, state: T) -> tauri::Result<()> {
     tauri::event::emit(webview, String::from("state-update"), Some(state))
+}
+
+fn initialize_store_handler<T: ApplicationState + 'static>(
+    state: &'static Lazy<Arc<StoreState<T>>>,
+    commands: &'static Lazy<HashMap<String, Box<dyn Fn(&mut T, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static>>>
+) -> tauri::Result<()> {
+    // (should be) called once when the application starts to set initial store values
+    let mut state_data = state.data.lock().unwrap();
+
+    match commands.get(INIT_FUNC) {
+        Some(ref func) => {
+            // execute the given callback in the backend for the initialize store event
+            match func(&mut (*state_data), serde_json::Value::Null) {
+                Ok(_) => {
+                    println!("Init state: {}", *state_data);
+
+                    Ok(())
+                },
+                Err(err) => Err(err)
+            }
+        },
+        _ => Ok(())
+    }
+}
+
+fn action_handler<T: ApplicationState + 'static>(
+    state: &'static Lazy<Arc<StoreState<T>>>,
+    commands: &'static Lazy<HashMap<String, Box<dyn Fn(&mut T, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static>>>,
+    action: String,
+    data: serde_json::Value
+) -> tauri::Result<()> {
+    // try to get function for action and execute it, otherwise return command error
+    match commands.get(&action) {
+        Some(ref func) => {
+            let mut state_data = state.data.lock().unwrap();
+
+            // execute the given callback in the backend for the action
+            match func(&mut (*state_data), data) {
+                Ok(_) => {
+                    println!("New state: {}", *state_data);
+
+                    Ok(())
+                },
+                Err(err) => Err(err)
+            }
+        },
+        _ => {
+            println!("Unknown action: {}", action);
+
+            Err(CommandError::new(format!("Unknown action: {}", action)).into())
+        }
+    }
 }

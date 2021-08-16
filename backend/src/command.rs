@@ -26,7 +26,7 @@
  * SOFTWARE.
  */
 
-use std::sync::MutexGuard;
+use std::sync::Mutex;
 use std::marker::{Sync, Send};
 use serde::{Deserialize, Serialize};
 
@@ -37,7 +37,7 @@ pub enum Cmd {
     Action { action: String, data: serde_json::Value, callback: String, error: String }
 }
 
-pub trait ActionCallback<T: ApplicationState>: Fn(T, serde_json::Value) -> tauri::Result<T> + Send + Sync + 'static {}
+pub trait ActionCallback<T: ApplicationState>: Fn(&mut T, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static {}
 
 #[derive(Debug, Clone, Serialize)]
 pub struct CommandError {
@@ -60,8 +60,9 @@ impl std::fmt::Display for CommandError {
 
 impl std::error::Error for CommandError {}
 
-pub trait ApplicationState: Serialize + Clone + Default + Send + std::fmt::Display {}
+pub trait ApplicationState: Serialize + Default + Send + std::fmt::Display {}
 
-pub trait StoreState<T: ApplicationState>: Send + Sync {
-    fn get_data(&self) -> tauri::Result<MutexGuard<T>>;
+#[derive(Default)]
+pub struct StoreState<T: ApplicationState> {
+    pub data: Mutex<T>
 }

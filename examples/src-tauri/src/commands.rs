@@ -35,7 +35,7 @@ use serde::Deserialize;
 use tauri_react::INIT_FUNC;
 use crate::state::AppState;
 
-fn initialize(mut state: AppState, _: serde_json::Value) -> tauri::Result<AppState> {
+fn initialize(state: &mut AppState, _: serde_json::Value) -> tauri::Result<()> {
     state.path = "todos.txt".to_string();
     state.todos.clear();
 
@@ -47,7 +47,7 @@ fn initialize(mut state: AppState, _: serde_json::Value) -> tauri::Result<AppSta
         }
     }
 
-    Ok(state)
+    Ok(())
 }
 
 fn write_todos_to_file(todos: &Vec<String>, path: &str) -> Result<(), std::io::Error> {
@@ -62,13 +62,13 @@ struct AddTodoData {
     pub todo: String
 }
 
-fn add_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
+fn add_todo(state: &mut AppState, value: serde_json::Value) -> tauri::Result<()> {
     let data: AddTodoData = serde_json::from_value(value)?;
     state.todos.push(data.todo);
 
     write_todos_to_file(&state.todos, &state.path)?;
 
-    Ok(state)
+    Ok(())
 }
 
 #[derive(Deserialize)]
@@ -76,17 +76,17 @@ struct DeleteTodoData {
     pub index: usize
 }
 
-fn delete_todo(mut state: AppState, value: serde_json::Value) -> tauri::Result<AppState> {
+fn delete_todo(state: &mut AppState, value: serde_json::Value) -> tauri::Result<()> {
     let data: DeleteTodoData = serde_json::from_value(value)?;
     state.todos.remove(data.index);
 
     write_todos_to_file(&state.todos, &state.path)?;
 
-    Ok(state)
+    Ok(())
 }
 
-pub static COMMANDS: Lazy<HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>>> = Lazy::new(|| {
-    let mut c: HashMap<String, Box<dyn Fn(AppState, serde_json::Value) -> tauri::Result<AppState> + Send + Sync + 'static>> = HashMap::new();
+pub static COMMANDS: Lazy<HashMap<String, Box<dyn Fn(&mut AppState, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static>>> = Lazy::new(|| {
+    let mut c: HashMap<String, Box<dyn Fn(&mut AppState, serde_json::Value) -> tauri::Result<()> + Send + Sync + 'static>> = HashMap::new();
 
     c.insert(INIT_FUNC.to_string(), Box::new(initialize));
     c.insert("add-todo".to_string(), Box::new(add_todo));

@@ -51,7 +51,7 @@ fn main() {
                         .as_secs();
 
                     {
-                        let mut state = state::STATE.get_data().unwrap();
+                        let mut state = state::STATE.data.lock().unwrap();
                         state.time = time;
 
                         tauri_react::update_state(&mut webview, (*state).clone()).unwrap();
@@ -61,7 +61,7 @@ fn main() {
                 }
             });
         })
-        .invoke_handler(|webview, arg| command_handler(webview, arg, &state::STATE, &commands::COMMANDS))
+        .invoke_handler(|webview, arg| command_handler::<state::AppState>(webview, arg, &state::STATE, &commands::COMMANDS))
         .build()
         .run();
 }
