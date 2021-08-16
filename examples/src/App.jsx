@@ -27,26 +27,19 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
 
-import { ViewBody } from './components/view';
 import NewTodo from './containers/new-todo';
 import TodoList from './containers/todo-list';
 import Clock from './containers/clock';
 
-const Container = styled(ViewBody)`
-    background: #f8f4e3;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-`;
-
 const App = () => {
-    return <Container>
+    return <div className='h-screen flex flex-auto flex-col w-auto bg-yellow-300 font-sans'>
         <NewTodo />
 
         <TodoList />
 
-        <Clock />
-    </Container>;
+        <Clock className='mt-12' />
+    </div>;
 };
 
 export default App;

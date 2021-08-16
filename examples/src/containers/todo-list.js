@@ -39,7 +39,7 @@ const TodoList = ({ todos, deleteTodo }) => (
             <ListItem key={index}>
                 {todo}
 
-                <BorderlessButton onClick={() => deleteTodo(index)}>X</BorderlessButton>
+                <BorderlessButton className='ml-2' onClick={() => deleteTodo(index)}>X</BorderlessButton>
             </ListItem>
         ))}
     </List>

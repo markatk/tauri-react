@@ -27,20 +27,8 @@
  */
 
 import React from 'react';
-import styled from 'styled-components';
+import classnames from 'classnames';
 
-const Input = styled.input`
-    margin: 10px 5px;
-    padding: 5px;
-    border-radius: 5px;
-
-    flex: ${props => props.flex ?? 'auto'};
-
-    &:focus {
-        outline: none;
-    }
-`;
-
-export const TextBox = ({ text, onChange, flex }) => (
-    <Input value={text} onChange={event => onChange(event.target.value)} flex={flex} />
+export const TextBox = ({ text, onChange, className }) => (
+    <input className={classnames(className, 'mx-1 my-2.5 p-1 rounded-md focus:outline-none')} value={text} onChange={event => onChange(event.target.value)} />
 );

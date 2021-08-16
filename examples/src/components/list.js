@@ -26,11 +26,12 @@
  * SOFTWARE.
  */
 
-import styled from 'styled-components';
+import classnames from 'classnames';
 
-export const List = styled.ul`
-    margin: 0;
-`;
+export const List = ({ children, className }) => <ul className={classnames(className, 'm-0 list-disc')}>
+    {children}
+</ul>;
 
-export const ListItem = styled.li`
-`;
+export const ListItem = ({ children, className }) => <li className={classnames(className, 'ml-8')}>
+    {children}
+</li>;

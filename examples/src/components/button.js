@@ -26,21 +26,12 @@
  * SOFTWARE.
  */
 
-import styled from 'styled-components';
+import classnames from 'classnames';
 
-export const Button = styled.button`
-    width: 80px;
-    margin: 10px 5px;
-`;
+export const Button = ({ children, className }) => <button className={classnames(className, 'w-20 mx-1 my-2.5 bg-white border rounded-md')}>
+    {children}
+</button>;
 
-export const BorderlessButton = styled.button`
-    border: none;
-    background: none;
-
-    cursor: pointer;
-    text-decoration: underline;
-
-    &:focus {
-        outline: none;
-    }
-`;
+export const BorderlessButton = ({ children, className }) => <button className={classnames(className, 'border-0 bg-none cursor-pointer underline focus:outline-none')}>
+    {children}
+</button>;

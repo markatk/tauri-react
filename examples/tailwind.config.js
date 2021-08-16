@@ -1,7 +1,7 @@
 /*
- * File: view.js
+ * File: tailwind.config.js
  * Author: MarkAtk
- * Date: 18.12.20
+ * Date: 16.08.21
  *
  * MIT License
  *
@@ -26,31 +26,14 @@
  * SOFTWARE.
  */
 
-import styled from 'styled-components';
-
-const ViewAxis = styled.div`
-    display: flex;
-    flex: ${props => props.grow ? '1 1 auto' : 'none'};
-    background: ${props => props.background ?? 'none'};
-`;
-
-export const ViewRow = styled(ViewAxis)`
-    flex-flow: row;
-    height: ${props => props.height ?? 'auto'};
-`;
-
-export const ViewColumn = styled(ViewAxis)`
-    flex-flow: column;
-    width: ${props => props.width ?? 'auto'};
-`;
-
-export const ViewBody = styled(ViewColumn)`
-    height: 100vh;
-    flex: 1 1 auto;
-`;
-
-export default {
-    Row: ViewRow,
-    Column: ViewColumn,
-    Body: ViewBody
+module.exports = {
+    purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+    darkMode: false, // or 'media' or 'class'
+    theme: {
+        extend: {},
+    },
+    variants: {
+        extend: {},
+    },
+    plugins: [],
 }

@@ -28,16 +28,15 @@
 
 import React from 'react';
 import { connect } from 'tauri-react';
+import classnames from 'classnames';
 
-import { ViewRow } from '../components/view';
-
-const Clock = ({ time }) => {
+const Clock = ({ time, className }) => {
     const date = new Date(0);
     date.setUTCSeconds(time);
 
-    return <ViewRow>
+    return <div className={classnames(className, 'flex flex-row flex-auto h-auto justify-center')}>
         <p>{date.toLocaleString()}</p>
-    </ViewRow>;
+    </div>;
 };
 
 const mapStateToProps = state => {

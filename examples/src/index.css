@@ -1,7 +1,7 @@
 /*
- * File: new-todo.js
+ * File: index.css
  * Author: MarkAtk
- * Date: 17.12.20
+ * Date: 16.08.21
  *
  * MIT License
  *
@@ -26,34 +26,6 @@
  * SOFTWARE.
  */
 
-import React, { useState } from 'react';
-import { connect, bindActionCreators } from 'tauri-react';
-
-import { addTodo } from '../actions/todo';
-import { TextBox } from '../components/text-box';
-import { Button } from '../components/button';
-
-const NewTodo = ({ addTodo }) => {
-    const [todo, setTodo] = useState('');
-
-    const addAndClearTodo = () => {
-        addTodo(todo);
-
-        // reset input
-        setTodo('');
-    };
-
-    return <form>
-         <div className='flex flex-row flex-auto h-auto'>
-            <TextBox text={todo} onChange={setTodo} className='flex flex-auto' />
-
-            <Button onClick={addAndClearTodo} disabled={todo === ''} type='submit'>Add</Button>
-         </div>
-    </form>;
-};
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-    addTodo
-}, dispatch);
-
-export default connect(null, mapDispatchToProps)(NewTodo);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
